@@ -36,6 +36,7 @@ const getBallots = async () => {
 
 // Update a ballot by ID
 const updateBallot = async (id, data) => {
+<<<<<<< HEAD
     try {
         const ballot = await prisma.ballot.update({
             where: { id },
@@ -45,10 +46,18 @@ const updateBallot = async (id, data) => {
     } catch (err) {
         throw new Error(`Error updating ballot with ID: ${id}`);
     }
+=======
+    const ballot = await prisma.ballot.update({
+      where: { id },
+      data,
+    });
+    return ballot;
+>>>>>>> e6d9a0ae90df0207cdd1df8785b53aace2f1da27
 };
 
 // Delete a ballot by ID
 const deleteBallot = async (id) => {
+<<<<<<< HEAD
     try {
         await prisma.ballot.delete({
             where: { id },
@@ -57,6 +66,12 @@ const deleteBallot = async (id) => {
     } catch (err) {
         throw new Error(`Error deleting ballot with ID: ${id}`);
     }
+=======
+    await prisma.ballot.delete({
+      where: { id },
+    });
+    return { message: 'Ballot deleted' };
+>>>>>>> e6d9a0ae90df0207cdd1df8785b53aace2f1da27
 };
 
 module.exports = {
