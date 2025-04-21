@@ -21,7 +21,7 @@ document.getElementById("votingForm").addEventListener("submit", async function(
     }
 
 
-    const res = await fetch('/api/ballots', {
+    const res = await fetch('/ballot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ voterID, regPIN, firstChoice, secondChoice, thirdChoice })
@@ -30,7 +30,7 @@ document.getElementById("votingForm").addEventListener("submit", async function(
 
     try {
         // Send data to the server
-        const res = await fetch('/api/ballots', {
+        const res = await fetch('/ballot', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ voterID, regPIN, firstChoice, secondChoice, thirdChoice })
