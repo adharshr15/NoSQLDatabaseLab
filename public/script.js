@@ -1,21 +1,55 @@
-document.getElementById("votingForm").addEventListener("submit", function(event) {
-    const selection1 = document.getElementById("selection1").value;
-    const selection2 = document.getElementById("selection2").value;
-    const selection3 = document.getElementById("selection3").value;
+document.getElementById("votingForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
 
-    // check if all dropdowns have a value selected
-    if (!selection1 || !selection2 || !selection3) {
+
+    const voterID = document.getElementById("voterID").value;
+    const regPIN = document.getElementById("regPIN").value;
+    const firstChoice = document.getElementById("selection1").value;
+    const secondChoice = document.getElementById("selection2").value;
+    const thirdChoice = document.getElementById("selection3").value;
+
+
+    if (!firstChoice || !secondChoice || !thirdChoice) {
         alert("Please select a value for all dropdowns.");
-        event.preventDefault(); 
         return;
     }
 
-    // check if any selections are the same
-    if (selection1 == selection2 || selection2 == selection3 || selection3 == selection1) {
+
+    if (firstChoice === secondChoice || secondChoice === thirdChoice || thirdChoice === firstChoice) {
         alert("Each selection must have a different value.");
-        event.preventDefault();
         return;
     }
 
-    alert("Form submitted successfully!");
-})
+
+    const res = await fetch('/api/ballots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voterID, regPIN, firstChoice, secondChoice, thirdChoice })
+    });
+
+
+    try {
+        // Send data to the server
+        const res = await fetch('/api/ballots', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ voterID, regPIN, firstChoice, secondChoice, thirdChoice })
+        });
+
+        // Check if the response is successful
+        if (!res.ok) {
+            throw new Error('Failed to submit ballot.');
+        }
+
+        // Parse the response data
+        const data = await res.json();
+
+        // Show a success message or the message returned by the server
+        alert(data.message || "Submitted successfully!");
+
+    } catch (err) {
+        // Handle any errors that occur during the fetch request
+        console.error(err);
+        alert("There was an error submitting your ballot.");
+    }
+});
