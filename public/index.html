@@ -1,10 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-
+    <style>
+        body {
+            padding: 40px;
+            max-width: 700px;
+            margin: auto;
+        }
+    </style>
 </head>
 <body>
-Hello
+    <h1>Voting Form</h1>
+    <p>Please enter your VoterID and Registration PIN</p>
+    <br>
+
+    <div class="form-section">
+        <label for="name">VoterID: </label>
+        <input type="text" name="VoterID" id="voterID" required>
+        <br><br>
+        <label for="name">Registration PIN: </label>
+        <input type="text" name="regPIN" id="regPIN" required>
+    </div>
 </body>
 
 </html>
