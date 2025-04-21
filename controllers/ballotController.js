@@ -28,7 +28,7 @@ const getBallots = async () => {
   
   
 const updateBallot = async (id, data) => {
-    const ballot = await prisma.vote.update({
+    const ballot = await prisma.ballot.update({
       where: { id },
       data,
     });
@@ -37,7 +37,7 @@ const updateBallot = async (id, data) => {
   
   
 const deleteBallot = async (id) => {
-    await prisma.vote.delete({
+    await prisma.ballot.delete({
       where: { id },
     });
     return { message: 'Ballot deleted' };
