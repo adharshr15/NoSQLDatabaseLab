@@ -1,11 +1,17 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    
+  provider = "mongodb"
+  url      = env("mongodb+srv://tejastk04:<kUbi4ciTcuoXoHyT>@cluster0.h15w40p.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 }
 
-model Voter {
-    
+model Ballot {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  voterID      String
+  regPIN       String
+  firstChoice  String
+  secondChoice String
+  thirdChoice  String
 }
