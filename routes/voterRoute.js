@@ -25,7 +25,7 @@ router.put('', async (req, res) => {
   const { id } = req.params;
   const data = req.body;
   try {
-    const ballot = await updateBallot(parseInt(id), data);
+    const ballot = await updateBallot(id, data);
     res.json(ballot);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -35,7 +35,7 @@ router.put('', async (req, res) => {
 router.delete('', async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await deleteBallot(parseInt(id));
+    const result = await deleteBallot(id);
     res.json(result);
   } catch (err) {
     res.status(400).json({ error: err.message });
