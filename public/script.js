@@ -17,20 +17,7 @@ document.getElementById("votingForm").addEventListener("submit", async function(
         return;
     }
 
-<<<<<<< HEAD
     try {
-=======
-
-    const res = await fetch('/ballot', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ voterID, regPIN, firstChoice, secondChoice, thirdChoice })
-    });
-
-
-    try {
-        // Send data to the server
->>>>>>> e6d9a0ae90df0207cdd1df8785b53aace2f1da27
         const res = await fetch('/ballot', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
