@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Voting Form</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
             padding: 40px;
             max-width: 700px;
             margin: auto;
+        }
+        .form-section {
+            padding-bottom: 20px
         }
     </style>
 </head>
@@ -13,14 +19,57 @@
     <h1>Voting Form</h1>
     <p>Please enter your VoterID and Registration PIN</p>
     <br>
+    <form id="votingForm">
+        <div class="form-section">
+            <label for="name">Voter ID: </label>
+            <input type="text" name="VoterID" id="voterID" required>
+        </div>
 
-    <div class="form-section">
-        <label for="name">VoterID: </label>
-        <input type="text" name="VoterID" id="voterID" required>
-        <br><br>
-        <label for="name">Registration PIN: </label>
-        <input type="text" name="regPIN" id="regPIN" required>
-    </div>
+        <div class="form-section">
+            <label for="name">Registration PIN: </label>
+            <input type="text" name="regPIN" id="regPIN" required>
+        </div>
+
+        <div class="form-section">
+            <label for="selection1">Selection 1</label>
+            <select name="selection1" id="selection1" required>
+            <option value="">-- Please select --</option>
+            <option value="William Henry Harrison">William Henry Harrison</option>
+            <option value="Taylor Swift">Taylor Swift</option>
+            <option value="Abraham Lincoln">Abraham Lincoln</option>
+            <option value="Mr. Bean">Mr. Bean</option>
+            <option value="George Washington">George Washington</option>
+            </select>
+        </div>
+
+        <div class="form-section">
+            <label for="selection2">Selection 2</label>
+            <select name="selection2" id="selection2" required>
+            <option value="">-- Please select --</option>
+            <option value="William Henry Harrison">William Henry Harrison</option>
+            <option value="Taylor Swift">Taylor Swift</option>
+            <option value="Abraham Lincoln">Abraham Lincoln</option>
+            <option value="Mr. Bean">Mr. Bean</option>
+            <option value="George Washington">George Washington</option>
+            </select>
+        </div>
+
+        <div class="form-section">
+            <label for="selection3">Selection 3</label>
+            <select name="selection3" id="selection3" required>
+            <option value="">-- Please select --</option>
+            <option value="William Henry Harrison">William Henry Harrison</option>
+            <option value="Taylor Swift">Taylor Swift</option>
+            <option value="Abraham Lincoln">Abraham Lincoln</option>
+            <option value="Mr. Bean">Mr. Bean</option>
+            <option value="George Washington">George Washington</option>
+            </select>
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script src="script.js"></script>
 </body>
 
 </html>
