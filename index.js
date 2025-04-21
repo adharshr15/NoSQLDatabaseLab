@@ -3,6 +3,7 @@ const path = require('path');
 const app = express();
 const ballotRoute = require('./routes/ballotRoute.js');
 const PORT = 3000;
+require('dotenv').config();
 
 // Middleware to parse form data
 app.use(express.json())
