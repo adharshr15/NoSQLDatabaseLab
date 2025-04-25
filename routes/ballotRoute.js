@@ -1,129 +1,153 @@
 const express = require('express');
-const { createBallot, getBallots, updateBallotByVoterID, deleteBallot, getBallotByVoterID } = require('../controllers/ballotController');
+const {
+  createBallot,
+  getBallots,
+  updateBallotByVoterID,
+  deleteBallot,
+  getBallotByVoterID
+} = require('../controllers/ballotController');
 const router = express.Router();
 
 // POST route to create or update a ballot
 router.post('/', async (req, res) => {
-  const { voterID, regPIN, firstChoice, secondChoice, thirdChoice } = req.body;
-
-  // Check if all fields are filled
-  if (!voterID || !regPIN || !firstChoice || !secondChoice || !thirdChoice) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
-
   try {
-    // Check if the ballot already exists for the voterID
+    const { voterID, regPIN, election, rankings } = req.body;
+
+    if (!voterID || !regPIN) {
+      return res.status(400).json({ error: 'Missing voterID or regPIN' });
+    }
+
+    if (!election || !election.electionID || !election.name || !election.date) {
+      return res.status(400).json({ error: 'Missing or incomplete election data' });
+    }
+
+    if (!rankings || !Array.isArray(rankings) || rankings.length === 0) {
+      return res.status(400).json({ error: 'Missing or invalid rankings' });
+    }
+
+    // Validate each ranking
+    for (const rank of rankings) {
+      if (!rank.rank || !rank.nominee || !rank.nominee.nomineeID || !rank.nominee.name) {
+        return res.status(400).json({ 
+          error: 'Invalid ranking format', 
+          details: 'Each ranking must include rank and nominee information' 
+        });
+      }
+    }
+
+    // Parse ISO date string to Date object if needed
+    const electionData = {
+      ...election,
+      date: new Date(election.date)
+    };
+
     const existingBallot = await getBallotByVoterID(voterID);
 
     if (existingBallot) {
-      // If ballot exists, update the existing ballot with the new data
       const updatedBallot = await updateBallotByVoterID(voterID, {
         regPIN,
-        firstChoice,
-        secondChoice,
-        thirdChoice,
+        electionData,
+        rankings
       });
 
       return res.json({
         message: 'Ballot updated successfully!',
-        updatedBallot,
+        updatedBallot
       });
     } else {
-      // If ballot does not exist, create a new ballot
-      const newBallot = await createBallot(voterID, regPIN, firstChoice, secondChoice, thirdChoice);
+      const newBallot = await createBallot(voterID, regPIN, electionData, rankings);
 
       return res.status(201).json({
         message: 'Ballot created successfully!',
-        newBallot,
+        newBallot
       });
     }
   } catch (err) {
-    // Return a standardized error message
     res.status(400).json({ error: 'Error processing ballot', details: err.message });
   }
 });
 
-// GET route to fetch all ballots
-router.get('/all', async (req, res) => {
-  console.log('Fetching all ballots...');
+// GET all ballots
+router.get('/all', async (_req, res) => {
   try {
     const ballots = await getBallots();
     res.json(ballots);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch ballots' });
+    res.status(500).json({ error: 'Failed to fetch ballots', details: err.message });
   }
 });
 
-// GET route to fetch one ballot by voterID
+// GET ballot by voterID
 router.get('/:voterID', async (req, res) => {
   const { voterID } = req.params;
-
-  if (!voterID) {
-    return res.status(400).json({ error: 'VoterID is required' });
-  }
 
   try {
     const ballot = await getBallotByVoterID(voterID);
     if (!ballot) {
       return res.status(404).json({ error: 'Ballot not found' });
     }
-
     res.json(ballot);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch ballot', details: err.message });
   }
 });
 
-
-
-// PUT route to update an existing ballot by voterID
+// PUT update ballot by voterID
 router.put('/:voterID', async (req, res) => {
   const { voterID } = req.params;
-  const { regPIN, firstChoice, secondChoice, thirdChoice } = req.body;
-
-  // Check if all fields are filled
-  if (!regPIN || !firstChoice || !secondChoice || !thirdChoice) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
+  const { regPIN, election, rankings } = req.body;
 
   try {
-    // Check if the ballot exists for the given voterID
+    // Validate required fields
+    if (!regPIN) {
+      return res.status(400).json({ error: 'Missing regPIN' });
+    }
+
+    if (!election || !election.electionID || !election.name || !election.date) {
+      return res.status(400).json({ error: 'Missing or incomplete election data' });
+    }
+
+    if (!rankings || !Array.isArray(rankings) || rankings.length === 0) {
+      return res.status(400).json({ error: 'Missing or invalid rankings' });
+    }
+
+    // Parse ISO date string to Date object if needed
+    const electionData = {
+      ...election,
+      date: new Date(election.date)
+    };
+
     const existingBallot = await getBallotByVoterID(voterID);
 
     if (!existingBallot) {
-      return res.status(404).json({ error: 'Ballot not found for this voterID' });
+      return res.status(404).json({ error: 'Ballot not found' });
     }
 
-    // Update the existing ballot with the new data
     const updatedBallot = await updateBallotByVoterID(voterID, {
       regPIN,
-      firstChoice,
-      secondChoice,
-      thirdChoice,
+      electionData,
+      rankings
     });
 
     res.json({
       message: 'Ballot updated successfully!',
-      updatedBallot,
+      updatedBallot
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// DELETE route to delete a ballot by voterID
+// DELETE ballot by voterID
 router.delete('/:voterID', async (req, res) => {
   const { voterID } = req.params;
 
   try {
-    // Fetch ballot by voterID to check if it exists
     const ballot = await getBallotByVoterID(voterID);
-
     if (!ballot) {
       return res.status(404).json({ error: 'Ballot not found' });
     }
 
-    // Delete the ballot
     await deleteBallot(ballot.id);
     res.json({ message: 'Ballot deleted successfully' });
   } catch (err) {

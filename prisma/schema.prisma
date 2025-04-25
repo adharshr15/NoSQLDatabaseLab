@@ -8,10 +8,31 @@ datasource db {
 }
 
 model Ballot {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  voterID      String   @unique
-  regPIN       String
-  firstChoice  String
-  secondChoice String
-  thirdChoice  String
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  voter      Voter
+  election   Election
+  timestamp  DateTime
+  rankings   Ranking[]
+}
+
+type Voter {
+  voterID String
+  regPIN  String
+}
+
+type Election {
+  electionID String
+  name       String
+  date       DateTime
+}
+
+type Ranking {
+  rank    Int
+  nominee Nominee
+}
+
+type Nominee {
+  nomineeID String
+  name      String
+  party     String
 }

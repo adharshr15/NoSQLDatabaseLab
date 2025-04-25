@@ -1,4 +1,4 @@
-document.getElementById("votingForm").addEventListener("submit", async function(event) {
+document.getElementById("votingForm").addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const voterID = document.getElementById("voterID").value;
@@ -6,6 +6,11 @@ document.getElementById("votingForm").addEventListener("submit", async function(
     const firstChoice = document.getElementById("selection1").value;
     const secondChoice = document.getElementById("selection2").value;
     const thirdChoice = document.getElementById("selection3").value;
+
+    if (!voterID || !regPIN) {
+        alert("Please enter your Voter ID and Registration PIN.");
+        return;
+    }
 
     if (!firstChoice || !secondChoice || !thirdChoice) {
         alert("Please select a value for all dropdowns.");
@@ -18,18 +23,49 @@ document.getElementById("votingForm").addEventListener("submit", async function(
     }
 
     try {
-        const checkRes = await fetch(`/ballot?voterID=${encodeURIComponent(voterID)}`);
-        console.log("checkRes: ", checkRes);
-
         const res = await fetch('/ballot', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ voterID, regPIN, firstChoice, secondChoice, thirdChoice })
+            body: JSON.stringify({
+                voterID,
+                regPIN,
+                election: { 
+                    electionID: "2025-general", 
+                    name: "2025 General Election", 
+                    date: new Date().toISOString() 
+                }, 
+                rankings: [
+                    { 
+                        rank: 1, 
+                        nominee: {
+                            nomineeID: firstChoice.replace(/\s+/g, '-').toLowerCase(),
+                            name: firstChoice,
+                            party: getNomineeParty(firstChoice)
+                        }
+                    },
+                    { 
+                        rank: 2, 
+                        nominee: {
+                            nomineeID: secondChoice.replace(/\s+/g, '-').toLowerCase(),
+                            name: secondChoice,
+                            party: getNomineeParty(secondChoice)
+                        }
+                    },
+                    { 
+                        rank: 3, 
+                        nominee: {
+                            nomineeID: thirdChoice.replace(/\s+/g, '-').toLowerCase(),
+                            name: thirdChoice,
+                            party: getNomineeParty(thirdChoice)
+                        }
+                    }
+                ]
+            })
         });
 
         if (!res.ok) {
             const err = await res.json();
-            throw new Error(err.error || 'Failed to submit ballot.');
+            throw new Error(err.error || err.details || 'Failed to submit ballot.');
         }
 
         const data = await res.json();
@@ -60,30 +96,19 @@ document.getElementById('retrieveButton').addEventListener('click', async functi
         }
 
         const data = await res.json();
-        console.log("Fetched ballots:", data);
+        console.log("Fetched ballot:", data);
 
-        // const ballot = data.find(entry => entry.voterID === voterID);
+        // Handle the ballot data structure correctly
+        const sorted = data.rankings.sort((a, b) => a.rank - b.rank);
+        document.getElementById("regPIN").value = data.voter.regPIN;
+        document.getElementById("selection1").value = sorted[0]?.nominee.name || '';
+        document.getElementById("selection2").value = sorted[1]?.nominee.name || '';
+        document.getElementById("selection3").value = sorted[2]?.nominee.name || '';
 
-        // console.log("Ballot: ", ballot);
-
-        // if (!ballot) {
-        //     alert("No ballot found for the provided Voter ID.");
-        //     return;
-        // }
-
-        // update fields with specified ballot info
-
-        document.getElementById("regPIN").value = data.regPIN;
-        document.getElementById("selection1").value = data.firstChoice;
-        document.getElementById("selection2").value = data.secondChoice;
-        document.getElementById("selection3").value = data.thirdChoice;
-
-    } catch (e) {
+    } catch (err) {
         console.error(err);
         alert("There was an error retrieving your ballot: " + err.message);
     }
-    
-
 });
 
 document.getElementById('deleteButton').addEventListener('click', async function (event) {
@@ -105,11 +130,29 @@ document.getElementById('deleteButton').addEventListener('click', async function
 
         if (res.ok) {
             alert("Ballot deleted successfully.");
+            // Clear form after successful deletion
+            document.getElementById("regPIN").value = '';
+            document.getElementById("selection1").value = '';
+            document.getElementById("selection2").value = '';
+            document.getElementById("selection3").value = '';
         } else {
             alert(`Failed to delete ballot: ${result.error || 'Unknown error'}`);
         }
-    } catch (e) {
-        console.error("Error deleting ballot:", e);
+    } catch (err) {
+        console.error("Error deleting ballot:", err);
         alert("An error occurred while trying to delete the ballot.");
     }
 });
+
+// Helper function to assign a party to each nominee
+function getNomineeParty(nominee) {
+    const partyMap = {
+        "William Henry Harrison": "Whig Party",
+        "Taylor Swift": "Independent",
+        "Abraham Lincoln": "Republican",
+        "Mr. Bean": "Comedy Party",
+        "George Washington": "Federalist"
+    };
+    
+    return partyMap[nominee] || "Independent";
+}
