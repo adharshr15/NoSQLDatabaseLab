@@ -28,26 +28,56 @@ const createBallot = async (voterID, regPIN, firstChoice, secondChoice, thirdCho
 const getBallots = async () => {
     try {
         const ballots = await prisma.ballot.findMany();
+        console.log("ballots: ", ballots)
         return ballots;
     } catch (err) {
         throw new Error('Error fetching ballots');
     }
 };
 
-// Update a ballot by ID
-const updateBallot = async (id, data) => {
+// Get ballot by voterID
+async function getBallotByVoterID(voterID) {
     try {
-        const ballot = await prisma.ballot.update({
-            where: { id },
-            data,
+        const ballot = await prisma.ballot.findUnique({
+            where: { voterID },
         });
         return ballot;
     } catch (err) {
-        throw new Error(`Error updating ballot with ID: ${id}`);
+        console.error(err);
+        throw new Error('Error fetching ballot by voterID');
+    }
+}
+
+// Update ballot by voterID
+const updateBallotByVoterID = async (voterID, { regPIN, firstChoice, secondChoice, thirdChoice }) => {
+    try {
+        // Check if the ballot exists
+        const existingBallot = await prisma.ballot.findUnique({
+            where: { voterID: voterID }
+        });
+
+        if (!existingBallot) {
+            throw new Error(`Ballot not found for voterID: ${voterID}`);
+        }
+
+        // Update the ballot with the new data
+        const updatedBallot = await prisma.ballot.update({
+            where: { voterID: voterID },
+            data: {
+                regPIN: regPIN,
+                firstChoice: firstChoice,
+                secondChoice: secondChoice,
+                thirdChoice: thirdChoice
+            }
+        });
+
+        return updatedBallot;
+    } catch (err) {
+        throw new Error('Error updating ballot: ' + err.message);
     }
 };
 
-// Delete a ballot by ID
+// Delete ballot by ID
 const deleteBallot = async (id) => {
     try {
         await prisma.ballot.delete({
@@ -62,6 +92,7 @@ const deleteBallot = async (id) => {
 module.exports = {
     createBallot,
     getBallots,
-    updateBallot,
     deleteBallot,
+    getBallotByVoterID,
+    updateBallotByVoterID
 };
